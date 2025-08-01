@@ -1,7 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import upload from "./middlewares/upload.js"
-import { v2 as cloudinary } from "cloudinary";
+import uploadFile from "./utils/uploader.js";
+import cron from "node-cron";
+import sendEmail from "./utils/nodemailer.js";
 
 dotenv.config();
 
@@ -12,11 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+console.log(Buffer.from("hello world"))
 
 
 app.get("/", (req, res) => {
@@ -25,10 +23,26 @@ app.get("/", (req, res) => {
 
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
-    const result = await cloudinary.uploader.upload(req.file.path);
+
+    console.log(req.file);
+
+    const result = await uploadFile(req.file.buffer);
+    console.log(result);
+
+
     res.json({ message: "File uploaded successfully!", data: result });
   } catch (error) {
     res.status(500).json({ message: "File upload failed!", error });
+  }
+});
+
+// Schedule a cron job to run every second
+cron.schedule("* * * * * ", async () => {
+  try {
+    console.log("Cron job executed successfully:", email);
+    const email = await sendEmail("smit@mailinator.com");
+  } catch (error) {
+    console.error("Error in cron job:", error);
   }
 });
 
