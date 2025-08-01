@@ -10,13 +10,27 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const fileUploader = async (filePath) => {
+const fileUploader = async (fileBuffer) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath);
-    return result;
+    const response = new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: "auto" },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      stream.end(fileBuffer);
+    });
+
+    return response;
   } catch (error) {
     throw new Error("File upload failed: " + error.message);
   }
-}
+};
 
 export default fileUploader;
