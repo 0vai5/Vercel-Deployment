@@ -39,8 +39,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // Schedule a cron job to run every second
 cron.schedule("* * * * * ", async () => {
   try {
-    console.log("Cron job executed successfully:", email);
     const email = await sendEmail("smit@mailinator.com");
+    console.log("Cron job executed successfully:", email);
   } catch (error) {
     console.error("Error in cron job:", error);
   }
